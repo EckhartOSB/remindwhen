@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+require 'date'
+require 'time'
+time = Time.parse(ARGV[0] || lambda {
+  print "When? "
+  STDIN.gets
+}.call)
+what = ARGV[1] || lambda {
+  print "What? "
+  STDIN.gets
+}.call
+td = Date.today
+File.open(File.expand_path("~/.when/reminders"),"a") do |f|
+  f.puts "#{td.year} #{td.month} #{td.day}, #{time.hour}:#{'%02d' % time.min} #{what}"
+end
