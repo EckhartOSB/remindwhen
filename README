@@ -1,0 +1,83 @@
+These scripts extend the functionality of the 'when' calendar utility
+(http://lightandmatter.coom/when/when.html) toprovide a means of
+receiving reminder notifications.
+
+For more information:	http://chipstips.com/?tag=rbremindwhen
+BitBucket repository:	http://bitbucket.org/sterlingcamden/remindwhen/
+
+The following scripts are provided:
+
+remindwhen.rb		Parses 'when' calendars looking for events that are due
+remind			Adds an event to the 'reminders' calendar
+reminders		Shows today's events from the 'reminders' calendar
+
+These scripts presume that the user has two 'when' calendars:
+
+~/.when/calendar	The default 'when' calendar
+~/.when/reminders	A calendar for reminders only
+
+The 'reminders' calendar will be created if it does not exist the first time
+you adda reminder using 'remind'.
+
+The reason for having separate calendars is that many reminders (especially
+recurring ones) are not really calendar events, and the user may not want to
+see those when invoking 'when' directly.  For instance, I have a reminder set
+for every day at 6PM to tell me to stop work.  If that reminder were placed
+on my regular calendar, I'd see seven of them in a weekly calendar listing.
+
+remindwhen.rb
+-------------
+
+This script is designed to be run at timed intervals, but you can also invoke
+it from the command line.  It parses first the 'reminders' calendar, and then
+the default calendar, looking for entries that are due on today's date and
+that contain a time in the form HH:MM[pm].  That is, one or two digits of hours,
+colon, one or two digits of minutes, and an optional "pm" (case-insensitive).
+If found, this string is passed to Ruby's Time#parse method to prduce a Time
+object.
+
+By default, if that time is on or after the current time but not more than three
+minutes beyond the current time, the event is considered due.  You can create
+an advance warning by following the time with zero or more whitespace characters,
+then +n, where n is the number of minutes of advance warning (any number of digits).
+
+remindwhen.rb strips off the date and sends "Reminder: " followed by the event
+text (including the time as specified) to stdout.  Each reminder is terminated
+by a newline.
+
+Thus, for instance, you can include the first reminder due in xmobar by adding
+the following command to your .xmobarrc:
+
+
+	Run Com "remindwhen.rb" [] "reminders" 600
+
+This runs the script every 60 seconds and sends the output to an xmobar
+template variable named "reminders".  You could also mail the output to yourself,
+send it to a dzen/xmessage window, or whatever notification mechanism tickles
+your tickler sensitivities.
+
+remind
+------
+
+This command-line tool allows you to easily add reminders to the 'reminders'
+calendar.  Usage:
+
+	remind time event
+
+where	time	is a time in the format expected (HH:MM[pm][+advance]).
+
+	event	is the text of the reminder.  Be smart and use quotes.
+
+remind adds the event to the end of ~/.when/reminders, creating it if it does
+not exist.  Today's date is presumed -- if you want a reminder for tomorrow,
+you'll have to use 'reminders e' as shown below.
+
+reminders
+---------
+
+This simple script calls 'when' to list the reminders calendar, limited to today's
+events, when called without arguments.  You can, however, pass arguments that
+will in turn be passed to 'when'.  So, to edit the reminders calendar, you can
+enter:
+
+	reminders e

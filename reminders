@@ -1,2 +1,2 @@
 #!/bin/sh
-when --calendar=~/.when/reminders --past=0 --future=0
+when $* --calendar=~/.when/reminders --past=0 --future=0
