@@ -1,0 +1,17 @@
+#~/bin/sh
+case $1 in
+"on")	if ! [ -f ~/.when/reminder.wav ]
+	then
+	  mv ~/.when/reminder_off.wav ~/.when/reminder.wav
+	fi;;
+"off")	if [ -f ~/.when/reminder.wav ]
+	then
+	  mv ~/.when/reminder.wav ~/.when/reminder_off.wav
+	fi;;
+esac
+if [ -f ~/.when/reminder.wav ]
+then
+  exit 0
+else
+  exit 1
+fi
