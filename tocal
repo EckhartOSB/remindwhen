@@ -21,7 +21,7 @@ end
 
 if (first <= last)
   nmonths = (last.year - first.year) * 12 + (last.month - first.month) + 1
-  system "pcal -H #{first.month} #{first.year} #{nmonths} -f #{file} | w3m -T text/html"
+  system "pcal -H #{first.month} #{first.year} #{nmonths} -f #{file}"
 end
 
 File.delete file

@@ -10,6 +10,10 @@ The following scripts are provided:
 remindwhen.rb		Parses 'when' calendars looking for events that are due
 remind			Adds an event to the 'reminders' calendar
 reminders		Shows today's events from the 'reminders' calendar
+alarm			Turn audible alarms on/off, and/or test current state
+echoif			Conditional echo
+tocal			Pipe when output to an HTML calendar
+whencal			View when calendar in w3m
 
 These scripts presume that the user has two 'when' calendars:
 
@@ -46,13 +50,24 @@ minutes of advance warning (any number of digits).  For example:
 Will notify me at 2:30.  Note that whitespace between the time and advance is
 ignored.
 
-remindwhen.rb strips off the date and sends "Reminder: " followed by the event
-text (including the time as specified) to stdout.  Each reminder is terminated
-by a newline.
+The advance can optionally be followed by the letter q (case-insensitive) to
+specify that the notification should be quiet.  That means that no sound should
+be played.  By default, if the file ~/.when/reminder.wav exists, it will be
+played whenever remindwhen.rb prints an event to stdout.  You may specify the
+quiet option without an advance as just "+q".  Examples:
+
+2010 May 28, 2:00pm +5q Add new features to README
+2010 May 28, 2:20pm +q  Post on Chip's Tips
+
+The first event will begin notification at five minutes before 2 without sound,
+and the second will begin at 2:20 also without sound.
+
+remindwhen.rb strips off the date, advance, and any q option, and sends
+"Reminder: " followed by the event text (including the time as specified) to stdout.
+Each reminder is terminated by a newline.
 
 Thus, for instance, you can include the first reminder due in xmobar by adding
 the following command to your .xmobarrc:
-
 
 	Run Com "remindwhen.rb" [] "reminders" 600
 
@@ -86,3 +101,79 @@ will in turn be passed to 'when'.  So, to edit the reminders calendar, you can
 enter:
 
 	reminders e
+
+alarm
+-----
+
+This shell script returns 0 if ~/.when/reminder.wav exists, otherwise 1.  It can
+optionally take an argument:
+
+"off"	if ~/.when/reminder.wav exists, renames it to ~/.when/reminder_off.wav
+"on"	if ~/.when/reminder.wav does not exists, renames ~/.when/reminder_off.wav
+	to ~/.when/reminder.wav
+
+Any other argument value is ignored.  In any case, the return value reflects the
+final state.
+
+echoif
+------
+
+This shell script conditionally echoes a string to stdout.  Usage:
+
+echoif <cond> <then> <else>
+
+where	<cond>	is an expression that will be evaluated for truth (in /bin/sh)
+	<then>	is an expression to echo if true
+	<else>	is an expression to echo if false
+
+You may wish to enclose each argument in quotes for safety's sake.
+
+Example:
+
+echoif alarm "on" "off"
+
+In my own case, I want to have an xmobar notification whenever I have alarms muted,
+so I added a line to .xmobarrc like so:
+
+	Run Com "echoif" ["alarm '' ' MUTE'"] "remindmuted" 60
+
+which displays " MUTE" in the bar whenever alarms are off.  Note how I pass an empty
+string to echo nothing when alarms are not muted.
+
+echoif is also useful for composing conditional shell commands.  For instance, I
+have mod4-shift-M mapped in xmonad to toggle alarm muting as follows:
+
+    , ((mod4Mask .|. shiftMask, xK_m), spawn "alarm `echoif alarm off on`")
+
+So if the inner call to alarm returns true, I pass "off" to the outer call,
+otherwise "on".
+
+Naturally, echoif's usefulness extends beyond the realm of reminders and xmonad.
+
+tocal
+-----
+
+This ruby script takes input in when's output format and reformats it to
+feed into the pcal utility (http://pcal.sourceforge.net) to render an HTML
+calendar that includes the specified dates.  The HTML is sent to stdout.
+
+This script is used by whencal below.
+
+whencal
+-------
+
+Generates a calendar from when and views it in w3m.  You can pass any arguments
+to whencal that are supported by when.  The w3m browser (http://w3m.sourceforge.net)
+will be invoked to view the resulting calendar, which includes all the dates that
+were supplied.
+
+I chose w3m because, unlike many browsers, it can receive its page from stdin.
+
+The when options --wrap=0 and --nopaging are on by default to keep the pipe
+flowing smoothly.
+
+Example:
+
+whencal y
+
+will view a calendar for the next year.

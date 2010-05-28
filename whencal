@@ -1,2 +1,2 @@
 #!/bin/sh
-when --nopaging --wrap=0 $* | tocal
+when --nopaging --wrap=0 $* | tocal | w3m -T text/html
