@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+require "date"
+
+first = Date.new(9999, 12, 1)
+last = Date.new(0, 1, 1)
+file = `mktemp /tmp/tocal.XXXXXX`.chomp
+
+$<.gets		# discard today's date line
+
+File.open(file, "w") do |tmp|
+  $<.each_line do |line|
+    if /^\w+\s+(\d{4}\s+\w+\s+\d+)\s+(.+)$/ =~ line
+      dt = Date.parse($1)
+      what = $2
+      first = Date.new(dt.year, dt.month, 1) if dt < first
+      last = Date.new(dt.year, dt.month, -1) if dt > last
+      tmp.puts dt.strftime("%m/%d/%Y ") + what
+    end
+  end
+end
+
+if (first <= last)
+  nmonths = (last.year - first.year) * 12 + (last.month - first.month) + 1
+  system "pcal -H #{first.month} #{first.year} #{nmonths} -f #{file} | w3m -T text/html"
+end
+
+File.delete file
