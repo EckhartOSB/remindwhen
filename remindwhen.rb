@@ -17,7 +17,7 @@ def check_reminder(event)
       puts event.sub(/^today\s+\d{4}\s\w+\s+\d+/,'Reminder:').sub(qual,'')
       if sound
 	wav = File.expand_path("~/.when/reminder.wav")
-	system "mplayer #{wav} >/dev/null 2>&1" if File.exists? wav
+	system "mplayer -quiet #{wav} >/dev/null 2>&1" if File.exists? wav
       end
     end
   end
