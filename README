@@ -14,6 +14,7 @@ alarm			Turn audible alarms on/off, and/or test current state
 echoif			Conditional echo
 tocal			Pipe when output to an HTML calendar
 whencal			View when calendar in w3m
+ical2when.rb		Convert iCalendar to a when entry
 
 These scripts presume that the user has two 'when' calendars:
 
@@ -177,3 +178,19 @@ Example:
 whencal y
 
 will view a calendar for the next year.
+
+ical2when.rb
+------------
+
+Takes iCalendar entries on stdin or via file arguments and produces one when entry
+for each event on stdout.  The iCalendar dtstart is converted to the local time zone,
+and the event summary is used as the text of the when entry (after the time).  If
+the event has an alarm with a trigger that specifies a negative offset from the start
+time in minutes, then "+n" is appended to the time (where n is the number of minutes)
+as expected by remindwhen.rb.
+
+This script make a useful pipe from MUAs such as mutt.  For example, you could
+map Ctrl+W in mutt's attachment menu to save the attachment to your when calendar
+by adding the following to .muttrc:
+
+macro attach \Cw "|ical2when.rb >> ~/.when/calendar\n" "Add appointment to when"
