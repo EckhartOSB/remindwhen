@@ -15,6 +15,7 @@ echoif			Conditional echo
 tocal			Pipe when output to an HTML calendar
 whencal			View when calendar in w3m
 ical2when.rb		Convert iCalendar to a when entry
+icalview.rb		View iCalendar
 
 These scripts presume that the user has two 'when' calendars:
 
@@ -194,3 +195,12 @@ map Ctrl+W in mutt's attachment menu to save the attachment to your when calenda
 by adding the following to .muttrc:
 
 macro attach \Cw "|ical2when.rb >> ~/.when/calendar\n" "Add appointment to when"
+
+icalview.rb
+-----------
+
+A simple text view of an iCalendar.  This script does not view attachments, nor does
+it include all possible iCalendar elements, but it hits the high points.  I use it to
+view iCalendar attachments from mutt by adding this to my .mailcap:
+
+text/calendar;			icalview.rb %s | less;
