@@ -16,6 +16,9 @@ tocal			Pipe when output to an HTML calendar
 whencal			View when calendar in w3m
 ical2when.rb		Convert iCalendar to a when entry
 icalview.rb		View iCalendar
+icalorg.rb		Extract organizer from iCalendar
+icalrespond.rb		Create an iCalendar response
+icalmutt.rb		iCalendar handler for mutt
 
 These scripts presume that the user has two 'when' calendars:
 
@@ -204,3 +207,67 @@ it include all possible iCalendar elements, but it hits the high points.  I use 
 view iCalendar attachments from mutt by adding this to my .mailcap:
 
 text/calendar;			icalview.rb %s | less;
+
+But see icalmutt.rb below for a more comprehensive solution.
+
+icalorg.rb
+----------
+
+Extracts the originator from an iCalendar and sends it to stdout.
+
+icalrespond.rb
+--------------
+
+Takes iCalendar entries on stdin or via file arguments and produces an iCalendar
+response, depending on the mode switch.  Options include:
+
+    -a, --accept                     Accept the appointment
+    -d, --decline                    Decline the appointment
+    -i, --identity email             Specify which responder you are
+    -m, --message msg                Message to accompany response
+    -t, --tentative                  Tentatively accept
+
+Exactly one of -a, -d, or -t must be passed, along with -i and your email address
+prefixed with "mailto:".
+
+If you include the -m option, then you can specify the message to include as the
+iCalendar DESCRIPTION.  Otherwise, the original description will be used.
+
+The output (to stdout) is an iCalendar that can be sent as an attachment of
+content/type text/calendar.  If you name the file with the .ics extension, mutt
+will automatically apply that content/type.
+
+icalmutt.rb
+-----------
+
+This script is designed specifically for use with mutt.  It takes a received
+iCalendar attachment as an argument, along with the option '-i identity' as in
+icalrespond.rb above.  This script combines the features of the above scripts:
+
+1. The screen is cleared.
+2. The message is viewed with icalview.rb
+3. The user is asked to respond with a single letter indicating
+   disposition: (a)ccept, (d)ecline, (t)entative, or (n)ot now.  If the
+   user responds:
+   (a) the event is added to the user's when calendar (~/.when/calendar)
+       using ical2when.rb, then an acceptance response is created with
+       icalrespond.rb and emailed to the originator with mutt.
+   (d) the event is not added to the user's calendar, but a decline
+       response is emailed to the originator.
+   (t) the event is not added to the user's calendar, but a tentative
+       response is emailed to the originator.
+   (n) nothing else happens.
+   (anything else) the script asks for the response again.
+
+   In any of the above cases where a response is generated, the user is
+   asked for "Message [none]:".  If the user enters anything, that will
+   be passed to icalrespond.rb, with any single quotes (') removed.
+
+If mutt is your email program and when is your calendar, then you can
+use this script to view and/or respond to iCalendar attachements by adding
+the following to .mailcap:
+
+text/calendar;	icalmutt.rb -i 'mailto:user@example.com' %s;
+
+This should be used instead of the entry shown under icalview.rb.
+Replace 'user@example.com' with your email address.

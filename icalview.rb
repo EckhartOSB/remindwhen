@@ -17,6 +17,7 @@ cals.each do |cal|
     puts "Event:     #{event.summary}"
     puts "Starts:    #{event.dtstart.myformat} local time"
     puts "Ends:      #{event.dtend.myformat}"
+    puts "Location:  #{event.location}"
     puts "Contact:   #{event.contacts}"
     puts "Description:\n#{event.description}"
     puts ""
