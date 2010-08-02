@@ -51,7 +51,7 @@ if choice != 'n'
   tmpfile = `mktemp /tmp/ical.XXXXXX`.chomp
   system "icalrespond.rb -#{choice} -i #{identity} #{msg.length > 0 ? "-m '#{msg}'" : ''} #{files} > #{tmpfile}"
   system "mv #{tmpfile} #{tmpfile}.ics"	# so mutt guesses the content type
-  system "echo 'Meeting attendance #{desc[choice]}\n\n#{msg}' | mutt  -a #{tmpfile}.ics -s 'Meeting response' '#{org}'"
+  system "echo 'Meeting attendance #{desc[choice]}\n\n#{msg}' | mutt -s 'Meeting response' -a #{tmpfile}.ics -- '#{org}'"
 
   File.delete "#{tmpfile}.ics"
 end
