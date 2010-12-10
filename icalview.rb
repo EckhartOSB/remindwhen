@@ -6,7 +6,8 @@ require "date"
 
 class DateTime
   def myformat
-    self.new_offset(Time.now.utc_offset/(24*60*60).to_f).strftime("%a %b %d %Y, %H:%M")
+    (self.offset == 0 ? (DateTime.parse(self.strftime("%a %b %d %Y, %H:%M ") + self.icalendar_tzid)) : self).
+    	new_offset(Time.now.utc_offset/(24*60*60).to_f).strftime("%a %b %d %Y, %H:%M")
   end
 end
 
